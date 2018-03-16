@@ -1,0 +1,27 @@
+{
+  "name": "hodl-contracts",
+  "version": "1.0.0",
+  "description": "contract to HODL ETH and ERC20 tokens",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roynalnaruto/hodl-contracts.git"
+  },
+  "dependencies": {
+    "@digix/truffle-lightwallet-provider": "0.1.4",
+    "ethereumjs-testrpc": "^3.9.2",
+    "awaiting": "^3.0.0"
+  },
+  "author": "Rohit Narurkar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/roynalnaruto/hodl-contracts/issues"
+  },
+  "homepage": "https://github.com/roynalnaruto/hodl-contracts#readme"
+}
