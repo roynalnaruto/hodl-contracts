@@ -5,20 +5,21 @@ import "./Hodl.sol";
 contract HodlFactory {
   address public daddy_hodler;
   address[] public hodlers;
-  uint256 public eth_count;
-  mapping(address => uint256) public hodl_tokens_count;
   mapping(address => bool) public hodl_contracts;
+  uint256 public hodl_eth_count;
+  mapping(address => uint256) public hodl_tokens_count;
 
-  modifier is_from_hodl_contracts() {
+  modifier if_from_hodl_contracts() {
     require(hodl_contracts[msg.sender] == true);
     _;
   }
 
   function HodlFactory() public {
     daddy_hodler = msg.sender;
-    eth_count = 0;
+    hodl_eth_count = 0;
   }
 
+  // ------------------------------------ PUBLIC CONSTANT ------------------------------------ //
   function getHodlers()
            public
            constant
@@ -35,6 +36,23 @@ contract HodlFactory {
     _is_valid = hodl_contracts[_hodl_contract];
   }
 
+  function getEthCount()
+           public
+           constant
+           returns (uint256 _amount)
+  {
+    _amount = hodl_eth_count;
+  }
+
+  function getTokenCount(address _token_address)
+           public
+           constant
+           returns (uint256 _amount)
+  {
+    _amount = hodl_tokens_count[_token_address];
+  }
+
+  // ------------------------------------ PUBLIC ------------------------------------ //
   function birthOfHodler()
            public
            returns (address _new_hodl_at)
@@ -43,5 +61,27 @@ contract HodlFactory {
     hodlers.push(msg.sender);
     _new_hodl_at = address(new_hodl);
     hodl_contracts[_new_hodl_at] = true;
+  }
+
+  function addedEth(uint256 _amount)
+           if_from_hodl_contracts()
+           public
+           returns (bool _success)
+  {
+    hodl_eth_count += _amount;
+    _success = true;
+  }
+
+  function addedToken(address _token_address, uint256 _amount)
+           if_from_hodl_contracts()
+           public
+           returns (bool _success)
+  {
+    if (hodl_tokens_count[_token_address] > 0) {
+      hodl_tokens_count[_token_address] += _amount;
+    } else {
+      hodl_tokens_count[_token_address] = _amount;
+    }
+    _success = true;
   }
 }

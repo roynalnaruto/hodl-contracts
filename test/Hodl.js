@@ -30,7 +30,7 @@ contract('Hodl', function (accounts) {
     hodlContracts.first = Hodl.at(hodl.address);
     hodlContracts.second = Hodl.at(secondHodl.address);
 
-    await hodlContracts.second.set_locked(LOCKED_UNTIL);
+    await hodlContracts.second.set_eth_locked(LOCKED_UNTIL);
   };
 
   describe('initialization', function () {
@@ -43,10 +43,10 @@ contract('Hodl', function (accounts) {
     });
   });
 
-  describe('if_not_locked', function () {
+  describe('if_eth_not_locked', function () {
     it('[contract is not locked]', async function () {
-      assert.deepEqual(await hodlContracts.first.test_if_not_locked.call(), true);
-      assert.ok(await a.failure(hodlContracts.second.test_if_not_locked.call()));
+      assert.deepEqual(await hodlContracts.first.test_if_eth_not_locked.call(), true);
+      assert.ok(await a.failure(hodlContracts.second.test_if_eth_not_locked.call()));
     })
   });
 
@@ -72,27 +72,34 @@ contract('Hodl', function (accounts) {
     });
   });
 
-  describe('lock | getLockedUntil', function () {
+  describe('lockEth | getEthLockedUntil', function () {
+    before(async function () {
+      await hodlContracts.first.sendTransaction({ from: addresses.hodlers[0], value: web3.toWei('15', 'ether') });
+    });
+    it('[all valid inputs, but, ETH balance is less than minimum required to lock]: throw', async function () {
+      assert.ok(await a.failure(hodlContracts.first.lockEth.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[0] })));
+      await hodlContracts.first.sendTransaction({ from: addresses.hodlers[0], value: web3.toWei('10', 'ether') });
+    });
     it('[called by hodler, valid time, already locked]: throw', async function () {
-      assert.ok(await a.failure(hodlContracts.second.lock.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[1] })));
+      assert.ok(await a.failure(hodlContracts.second.lockEth.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[1] })));
     });
     it('[called by hodler, invalid time, not yet locked]: throw', async function () {
-      assert.ok(await a.failure(hodlContracts.first.lock.call(LOCKED_UNTIL_INVALID, { from: addresses.hodlers[0] })));
+      assert.ok(await a.failure(hodlContracts.first.lockEth.call(LOCKED_UNTIL_INVALID, { from: addresses.hodlers[0] })));
     });
     it('[not called by hodler, valid time, not yet locked]: throw', async function () {
-      assert.ok(await a.failure(hodlContracts.first.lock.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[1] })));
+      assert.ok(await a.failure(hodlContracts.first.lockEth.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[1] })));
     });
-    it('[all valid inputs]: lock, return true', async function () {
-      assert.deepEqual(await hodlContracts.first.lock.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[0] }), true);
-      await hodlContracts.first.lock(LOCKED_UNTIL_VALID, { from: addresses.hodlers[0] });
+    it('[everything valid, lock]: success', async function () {
+      assert.deepEqual(await hodlContracts.first.lockEth.call(LOCKED_UNTIL_VALID, { from: addresses.hodlers[0] }), true);
+      await hodlContracts.first.lockEth(LOCKED_UNTIL_VALID, { from: addresses.hodlers[0] });
     });
     it('[non-hodler tries to read locked_up_until]: throw', async function () {
-      assert.ok(await a.failure(hodlContracts.first.getLockedUntil.call({ from: addresses.hodlers[1] })));
-      assert.ok(await a.failure(hodlContracts.second.getLockedUntil.call({ from: addresses.hodlers[0] })));
+      assert.ok(await a.failure(hodlContracts.first.getEthLockedUntil.call({ from: addresses.hodlers[1] })));
+      assert.ok(await a.failure(hodlContracts.second.getEthLockedUntil.call({ from: addresses.hodlers[0] })));
     });
     it('[hodler reads locked_up_until]: return correct value', async function () {
-      assert.deepEqual(await hodlContracts.first.getLockedUntil.call({ from: addresses.hodlers[0] }), LOCKED_UNTIL_VALID);
-      assert.deepEqual(await hodlContracts.second.getLockedUntil.call({ from: addresses.hodlers[1] }), LOCKED_UNTIL);
+      assert.deepEqual(await hodlContracts.first.getEthLockedUntil.call({ from: addresses.hodlers[0] }), LOCKED_UNTIL_VALID);
+      assert.deepEqual(await hodlContracts.second.getEthLockedUntil.call({ from: addresses.hodlers[1] }), LOCKED_UNTIL);
     });
   });
 });

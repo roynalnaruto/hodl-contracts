@@ -6,13 +6,22 @@ contract MockHodl is Hodl {
 
   function MockHodl(address _hodler) public Hodl(_hodler) {}
 
-  function test_if_not_locked()
-           if_not_locked()
+  function test_if_eth_not_locked()
+           if_eth_not_locked()
            public
            constant
-           returns (bool _not_locked)
+           returns (bool _eth_not_locked)
   {
-    _not_locked = true;
+    _eth_not_locked = true;
+  }
+
+  function test_if_token_not_locked(address _token_address)
+           if_token_not_locked(_token_address)
+           public
+           constant
+           returns (bool _token_not_locked)
+  {
+    _token_not_locked = true;
   }
 
   function test_if_valid_lockup_time(uint256 _until)
@@ -33,10 +42,65 @@ contract MockHodl is Hodl {
     _success = true;
   }
 
-  function set_locked(uint256 _locked_up_until)
+  function test_if_called_by_hodler(address _from)
+           if_called_by_hodler(_from)
+           public
+           constant
+           returns (bool _success)
+  {
+    _success = true;
+  }
+
+  function test_if_valid_eth_balance()
+           if_valid_eth_balance()
+           public
+           constant
+           returns (bool _success)
+  {
+    _success = true;
+  }
+
+  function test_if_valid_token_balance(address _token_address)
+           if_valid_token_balance(_token_address)
+           public
+           constant
+           returns (bool _success)
+  {
+    _success = true;
+  }
+
+  function test_if_eth_balances_match()
+           if_eth_balances_match()
+           public
+           constant
+           returns (bool _success)
+  {
+    _success = true;
+  }
+
+  function test_if_token_balances_match(address _token_address)
+           if_token_balances_match(_token_address)
+           public
+           constant
+           returns (bool _success)
+  {
+    _success = true;
+  }
+
+  function set_eth_locked(uint256 _eth_locked_up_until)
            public
            returns (bool _success)
   {
-    _success = internal_lock(_locked_up_until);
+    _success = internal_lock_eth(_eth_locked_up_until);
   }
+
+  function set_token_locked(address _token_address, uint256 _token_locked_up_until)
+           public
+           returns (bool _success)
+  {
+    _success = internal_lock_token(_token_address, _token_locked_up_until);
+  }
+
+  // fallback function to allow sending ether
+  function () public payable {}
 }

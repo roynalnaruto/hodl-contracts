@@ -38,8 +38,8 @@ contract('HodlFactory', function (accounts) {
       assert.deepEqual(await hodlFactory.daddy_hodler.call(), accounts[0]);
       assert.deepEqual(await secondHodlFactory.daddy_hodler.call(), accounts[1]);
 
-      assert.deepEqual(await hodlFactory.eth_count.call(), bN(0));
-      assert.deepEqual(await secondHodlFactory.eth_count.call(), bN(0));
+      assert.deepEqual(await hodlFactory.hodl_eth_count.call(), bN(0));
+      assert.deepEqual(await secondHodlFactory.hodl_eth_count.call(), bN(0));
     });
   });
 
@@ -69,16 +69,16 @@ contract('HodlFactory', function (accounts) {
     });
   });
 
-  describe('is_from_hodl_contracts', function () {
+  describe('if_from_hodl_contracts', function () {
     it('[not called from a valid hodl_contract]: throw', async function () {
-      assert.ok(await a.failure(hodlFactory.test_is_from_hodl_contracts.call({ from: thirdHodl })));
-      assert.ok(await a.failure(secondHodlFactory.test_is_from_hodl_contracts.call({ from: hodl })));
-      assert.ok(await a.failure(secondHodlFactory.test_is_from_hodl_contracts.call({ from: secondHodl })));
+      assert.ok(await a.failure(hodlFactory.test_if_from_hodl_contracts.call({ from: thirdHodl })));
+      assert.ok(await a.failure(secondHodlFactory.test_if_from_hodl_contracts.call({ from: hodl })));
+      assert.ok(await a.failure(secondHodlFactory.test_if_from_hodl_contracts.call({ from: secondHodl })));
     });
     it('[called from a valid hodl_contract]: return true', async function () {
-      assert.deepEqual(await hodlFactory.test_is_from_hodl_contracts.call({ from: hodl }), true);
-      assert.deepEqual(await hodlFactory.test_is_from_hodl_contracts.call({ from: secondHodl }), true);
-      assert.deepEqual(await secondHodlFactory.test_is_from_hodl_contracts.call({ from: thirdHodl }), true);
+      assert.deepEqual(await hodlFactory.test_if_from_hodl_contracts.call({ from: hodl }), true);
+      assert.deepEqual(await hodlFactory.test_if_from_hodl_contracts.call({ from: secondHodl }), true);
+      assert.deepEqual(await secondHodlFactory.test_if_from_hodl_contracts.call({ from: thirdHodl }), true);
     });
   });
 });
