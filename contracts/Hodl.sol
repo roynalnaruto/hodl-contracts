@@ -8,13 +8,13 @@ contract Hodl {
   address public factory;
   uint256 internal eth_locked_up_until;
   bool internal eth_locked;
-  uint256 internal n_eth;
   mapping(address => bool) internal tokens_locked;
   mapping(address => uint256) internal tokens_locked_up_until;
-  mapping(address => uint256) internal n_tokens;
 
-  event ReceivedEther(uint256 amount);
-  event ReceivedToken(address token, uint256 amount, bytes32 data);
+  event ReceiveEth(uint256 amount);
+  event ReceiveToken(address token, uint256 amount, bytes32 data);
+  event UnlockAndTransferEth(uint256 amount);
+  event UnlockAndTransferToken(address token, uint256 amount);
 
   modifier if_eth_not_locked() {
     require(eth_locked == false);
@@ -51,18 +51,15 @@ contract Hodl {
     _;
   }
 
-  modifier if_eth_balances_match() {
-    require(n_eth == this.balance);
+  modifier can_unlock_eth() {
+    require(eth_locked);
+    require(now > eth_locked_up_until);
     _;
   }
 
-  modifier if_token_balances_match(address _token_address) {
-    uint256 _token_balance = ERC20(_token_address).balanceOf(this);
-    if (_token_balance > 0) {
-      require(_token_balance == n_tokens[_token_address]);
-    } else {
-      require(n_tokens[_token_address] == 0);
-    }
+  modifier can_unlock_token(address _token_address) {
+    require(tokens_locked[_token_address]);
+    require(now > tokens_locked_up_until[_token_address]);
     _;
   }
 
@@ -71,7 +68,6 @@ contract Hodl {
     hodler = _hodler;
     factory = msg.sender;
     eth_locked = false;
-    n_eth = 0;
   }
 
   // ------------------------------------ PRIVATE ------------------------------------ //
@@ -102,23 +98,21 @@ contract Hodl {
     _success = true;
   }
 
-  function internal_add_eth(uint256 _amount)
+  function internal_unlock_eth()
            internal
            returns (bool _success)
   {
-    n_eth += _amount;
+    eth_locked_up_until = 0;
+    eth_locked = false;
     _success = true;
   }
 
-  function internal_add_token(address _token_address, uint256 _amount)
+  function internal_unlock_token(address _token_address)
            internal
            returns (bool _success)
   {
-    if (n_tokens[_token_address] > 0) {
-      n_tokens[_token_address] += _amount;
-    } else {
-      n_tokens[_token_address] = _amount;
-    }
+    tokens_locked_up_until[_token_address] = 0;
+    tokens_locked[_token_address] = false;
     _success = true;
   }
 
@@ -167,39 +161,67 @@ contract Hodl {
   function addEth()
            if_from_hodler()
            if_eth_not_locked()
-           if_eth_balances_match()
            public
            payable
            returns (bool _success)
   {
     require(msg.value > 0);
-    _success = internal_add_eth(msg.value);
-    ReceivedEther(msg.value);
+    _success = factory_contract().addedEth(msg.value);
+    require(_success);
+    ReceiveEth(msg.value);
   }
 
   function addERC20(address _token_address, uint256 _amount)
            if_from_hodler()
            if_token_not_locked(_token_address)
-           if_token_balances_match(_token_address)
            public
            returns (bool _success)
   {
     require(_amount > 0);
-    require(ERC20(_token_address).allowance(msg.sender, this) > _amount);
+    require(ERC20(_token_address).allowance(msg.sender, this) >= _amount);
     require(ERC20(_token_address).transferFrom(msg.sender, this, _amount));
-    _success = internal_add_token(_token_address, _amount);
-    ReceivedToken(_token_address, _amount, "");
+    _success = factory_contract().addedToken(_token_address, _amount);
+    require(_success);
+    ReceiveToken(_token_address, _amount, "");
   }
 
   function tokenFallback(address _from, uint256 _amount, bytes32 _data)
            if_called_by_hodler(_from)
            if_token_not_locked(msg.sender)
-           if_token_balances_match(msg.sender)
            public
            returns (bool _success)
   {
     require(_amount > 0);
-    _success = internal_add_token(msg.sender, _amount);
-    ReceivedToken(msg.sender, _amount, _data);
+    _success = factory_contract().addedToken(msg.sender, _amount);
+    require(_success);
+    ReceiveToken(msg.sender, _amount, _data);
+  }
+
+  function unlockEth()
+           can_unlock_eth()
+           if_from_hodler()
+           public
+           returns (bool _success)
+  {
+    uint256 _amount = this.balance;
+    require(internal_unlock_eth());
+    _success = factory_contract().unlockedEth(_amount);
+    require(_success);
+    hodler.transfer(_amount);
+    UnlockAndTransferEth(_amount);
+  }
+
+  function unlockToken(address _token_address)
+           can_unlock_token(_token_address)
+           if_from_hodler()
+           public
+           returns (bool _success)
+  {
+    uint256 _amount = ERC20(_token_address).balanceOf(this);
+    require(internal_unlock_token(_token_address));
+    _success = factory_contract().unlockedToken(_token_address, _amount);
+    require(_success);
+    require(ERC20(_token_address).transfer(hodler, _amount));
+    UnlockAndTransferToken(_token_address, _amount);
   }
 }

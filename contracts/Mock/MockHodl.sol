@@ -69,8 +69,8 @@ contract MockHodl is Hodl {
     _success = true;
   }
 
-  function test_if_eth_balances_match()
-           if_eth_balances_match()
+  function test_can_unlock_eth()
+           can_unlock_eth()
            public
            constant
            returns (bool _success)
@@ -78,8 +78,8 @@ contract MockHodl is Hodl {
     _success = true;
   }
 
-  function test_if_token_balances_match(address _token_address)
-           if_token_balances_match(_token_address)
+  function test_can_unlock_token(address _token_address)
+           can_unlock_token(_token_address)
            public
            constant
            returns (bool _success)
