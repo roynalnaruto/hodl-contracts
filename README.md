@@ -1,15 +1,22 @@
 # HODL [WIP]
 
-Contract that allows users to HODL their tokens. [WIP]
+Contract that allows users to HODL their tokens
 
 ### steps
 
 1. Install dependencies
-  `npm i`
+
+`npm i`
+
+2. Run testrpc (configured in `truffle.js`)
+
+`testrpc`
 
 2. Compile and run tests
-  `truffle compile`
-  `truffle test`
+
+`truffle compile`
+
+`truffle test`
 
 
 ### interface [WIP]
