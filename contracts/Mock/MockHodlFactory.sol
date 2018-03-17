@@ -6,8 +6,8 @@ contract MockHodlFactory is HodlFactory {
 
   function MockHodlFactory() public HodlFactory() {}
 
-  function test_is_from_hodl_contracts()
-           is_from_hodl_contracts()
+  function test_if_from_hodl_contracts()
+           if_from_hodl_contracts()
            public
            constant
            returns (bool _is_valid)
