@@ -14,6 +14,17 @@ contract HodlFactory {
     _;
   }
 
+  modifier if_eth_unlock_valid(uint256 _amount) {
+    require(_amount <= hodl_eth_count);
+    _;
+  }
+
+  modifier if_token_unlock_valid(address _token_address, uint256 _amount) {
+    require(_amount <= hodl_tokens_count[_token_address]);
+    _;
+  }
+
+  // ------------------------------------ CONSTRUCTOR ------------------------------------ //
   function HodlFactory() public {
     daddy_hodler = msg.sender;
     hodl_eth_count = 0;
@@ -72,6 +83,16 @@ contract HodlFactory {
     _success = true;
   }
 
+  function unlockedEth(uint256 _amount)
+           if_from_hodl_contracts()
+           if_eth_unlock_valid(_amount)
+           public
+           returns (bool _success)
+  {
+    hodl_eth_count -= _amount;
+    _success = true;
+  }
+
   function addedToken(address _token_address, uint256 _amount)
            if_from_hodl_contracts()
            public
@@ -82,6 +103,16 @@ contract HodlFactory {
     } else {
       hodl_tokens_count[_token_address] = _amount;
     }
+    _success = true;
+  }
+
+  function unlockedToken(address _token_address, uint256 _amount)
+           if_from_hodl_contracts()
+           if_token_unlock_valid(_token_address, _amount)
+           public
+           returns (bool _success)
+  {
+    hodl_tokens_count[_token_address] -= _amount;
     _success = true;
   }
 }
