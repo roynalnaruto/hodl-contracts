@@ -2,6 +2,8 @@ const a = require('awaiting');
 
 const HodlFactory = artifacts.require('MockHodlFactory.sol');
 const Hodl = artifacts.require('MockHodl.sol');
+const Token20 = artifacts.require('MockERC20Token.sol');
+const Token677 = artifacts.require('MockERC677Token.sol');
 
 const bN = web3.toBigNumber;
 
@@ -11,15 +13,23 @@ contract('HodlFactory', function (accounts) {
   let hodl;
   let secondHodl;
   let thirdHodl;
+  let erc20Token;
+  let erc677Token;
 
   before(async function () {
     await setupHodlFactory();
+    await setupTokens();
   });
 
   const setupHodlFactory = async function () {
     hodlFactory = await HodlFactory.new({ from: accounts[0] });
     secondHodlFactory = await HodlFactory.new({ from: accounts[1] });
   };
+
+  const setupTokens = async function () {
+    erc20Token = await Token20.new();
+    erc677Token = await Token677.new();
+  }
 
   const initializeHodlContracts = async function () {
     const hodl = await hodlFactory.birthOfHodler.call({ from: accounts[4] });
@@ -79,6 +89,41 @@ contract('HodlFactory', function (accounts) {
       assert.deepEqual(await hodlFactory.test_if_from_hodl_contracts.call({ from: hodl }), true);
       assert.deepEqual(await hodlFactory.test_if_from_hodl_contracts.call({ from: secondHodl }), true);
       assert.deepEqual(await secondHodlFactory.test_if_from_hodl_contracts.call({ from: thirdHodl }), true);
+    });
+  });
+
+  describe('if_eth_unlock_valid', function () {
+    const moreThan10 = web3.toWei('10.01', 'ether');
+    const equalTo10 = web3.toWei('10', 'ether');
+    const lessThan10 = web3.toWei('9.99', 'ether');
+    before(async function () {
+      assert.deepEqual(await hodlFactory.set_eth_count.call(equalTo10), true);
+      await hodlFactory.set_eth_count(equalTo10);
+    });
+    it('[amount greater than total count]: throw', async function () {
+      assert.ok(await a.failure(hodlFactory.test_if_eth_unlock_valid.call(moreThan10)));
+    });
+    it('[amount equal to total count]: return true', async function () {
+      assert.deepEqual(await hodlFactory.test_if_eth_unlock_valid.call(equalTo10), true);
+    });
+    it('[amount less than total count]: return true', async function () {
+      assert.deepEqual(await hodlFactory.test_if_eth_unlock_valid.call(lessThan10), true);
+    });
+  });
+
+  describe('if_token_unlock_valid', function () {
+    before(async function () {
+      assert.deepEqual(await hodlFactory.set_token_count.call(erc20Token.address, bN(100)), true);
+      await hodlFactory.set_token_count(erc20Token.address, bN(100));
+    });
+    it('[amount greater than total count]: throw', async function () {
+      assert.ok(await a.failure(hodlFactory.test_if_token_unlock_valid.call(bN(100.01))));
+    });
+    it('[amount equal to total count]: return true', async function () {
+      assert.deepEqual(await hodlFactory.test_if_token_unlock_valid.call(erc20Token.address, bN(100)), true);
+    });
+    it('[amount less than total count]: return true', async function () {
+      assert.deepEqual(await hodlFactory.test_if_token_unlock_valid.call(erc20Token.address, bN(99.99)), true);
     });
   });
 });

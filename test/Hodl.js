@@ -172,10 +172,6 @@ contract('Hodl', function (accounts) {
     });
   });
 
-  describe('can_unlock_token', function () {
-
-  });
-
   describe('lockEth | getEthLockedUntil', function () {
     before(async function () {
       await setupHodl();
