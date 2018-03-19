@@ -2,6 +2,8 @@
 
 Contract that allows users to HODL their tokens
 
+[![Coverage Status](https://coveralls.io/repos/github/roynalnaruto/hodl-contracts/badge.svg?branch=master)](https://coveralls.io/github/roynalnaruto/hodl-contracts?branch=master)
+
 ### steps
 
 1. Install dependencies
