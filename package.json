@@ -8,7 +8,6 @@
   },
   "scripts": {
     "test": "scripts/test.sh",
-    "lint": "eslint .",
     "coverage": "scripts/coverage.sh"
   },
   "repository": {
