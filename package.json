@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "scripts/test",
+    "test": "scripts/test.sh",
     "lint": "eslint .",
-    "coverage": "scripts/coverage"
+    "coverage": "scripts/coverage.sh"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,9 @@
     "@digix/truffle-lightwallet-provider": "0.1.4",
     "ethereumjs-testrpc": "^3.9.2",
     "awaiting": "^3.0.0",
-    "zeppelin-solidity": "^1.7.0"
+    "zeppelin-solidity": "^1.7.0",
+    "coveralls": "^2.13.1",
+    "eslint": "^4.11.0"
   },
   "author": "Rohit Narurkar",
   "license": "ISC",
