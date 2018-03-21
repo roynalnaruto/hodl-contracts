@@ -8,8 +8,9 @@ cache:
   directories:
     - node_modules
 env:
-  -
   - SOLIDITY_COVERAGE=true
+before_install:
+  - npm install truffle
 matrix:
   fast_finish: true
   allow_failures:
@@ -17,6 +18,7 @@ matrix:
 before_script:
   - truffle version
 script:
+  - npm install
   - npm run lint
   - npm run lint:sol
   - npm run test
