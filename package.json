@@ -16,11 +16,13 @@
   },
   "dependencies": {
     "@digix/truffle-lightwallet-provider": "0.1.4",
-    "ethereumjs-testrpc": "^3.9.2",
+    "ethereumjs-testrpc": "^6.0.1",
     "awaiting": "^3.0.0",
     "zeppelin-solidity": "^1.7.0",
     "coveralls": "^2.13.1",
-    "eslint": "^4.11.0"
+    "eslint": "^4.11.0",
+    "solidity-coverage": "^0.4.3",
+    "ethereumjs-util": "^5.1.2"
   },
   "author": "Rohit Narurkar",
   "license": "ISC",
